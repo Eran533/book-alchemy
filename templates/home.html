@@ -1,16 +1,209 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  </head>
-  <body>
+<html>
+<head>
+    <title>Library</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+          padding: 0;
+        }
 
-    {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
-    </div>
-    {% endfor %}
+        h1 {
+          text-align: center;
+          margin-bottom: 20px;
+        }
 
-  </body>
+        h2 {
+          margin-top: 40px;
+        }
+
+        p {
+          text-align: center;
+        }
+
+        a {
+          color: #007BFF;
+          text-decoration: none;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+
+        th, td {
+          padding: 10px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+
+        th {
+          background-color: #f2f2f2;
+        }
+
+        img {
+          max-width: 100px;
+          max-height: 100px;
+          display: block;
+          margin: 0 auto;
+        }
+
+        form {
+          display: inline-block;
+        }
+
+        label {
+          display: inline-block;
+          margin-right: 5px;
+        }
+
+        input[type="text"] {
+          padding: 5px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+        }
+
+        button {
+          padding: 5px 10px;
+          background-color: #007BFF;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #0056b3;
+        }
+        body {
+          background-color: #f6f6f6;
+        }
+
+        h1 {
+          color: #007BFF;
+        }
+
+        h2 {
+          color: #007BFF;
+        }
+
+        table {
+          border: 1px solid #ddd;
+          background-color: #fff;
+        }
+
+        th, td {
+          padding: 10px;
+          text-align: left;
+        }
+
+        th {
+          background-color: #f2f2f2;
+          font-weight: bold;
+        }
+
+        td a {
+          color: #007BFF;
+          text-decoration: none;
+        }
+
+        td a:hover {
+          text-decoration: underline;
+        }
+
+        form {
+          display: inline-block;
+          margin-bottom: 5px;
+        }
+
+        label {
+          margin-right: 10px;
+        }
+
+        input[type="text"] {
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+        }
+
+        button {
+          padding: 8px 15px;
+          background-color: #007BFF;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library</h1>
+    <h2>Books</h2>
+    <p>
+        <a href="/add_author">Add Author</a> | <a href="/add_book">Add Book</a>
+    </p>
+    <p>
+        Sort by:
+        <a href="{{ url_for('sort_books', sort_by='title') }}">Title</a> |
+        <a href="{{ url_for('sort_books', sort_by='author') }}">Author</a>
+    </p>
+    <form action="/search_books" method="GET">
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="query" placeholder="Enter your book :">
+        <button type="submit">Search</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Publication Year</th>
+            <th>Author</th>
+            <th>Cover</th>
+            <th>Rating</th>
+            <th>Actions</th>
+        </tr>
+        {% for book, author in books_data %}
+        <tr>
+            <td><a href="{{ url_for('book_details', book_id=book.Book_id) }}">{{ book.Book_title }}</a></td>
+            <td>{{ book.Book_publication_year }}</td>
+            <td>{{ author.Author_name }}
+                <form action="/author/{{ author.Author_id }}/delete" method="POST">
+                    <button type="submit">Delete Author</button>
+                </form>
+            </td>
+            {% if book.Book_cover_url == "default_cover_url.jpg" %}
+            <td><img src="{{ url_for('static', filename='default_cover_url.jpg') }}" height="100"></td>
+            {% else %}
+            <td><img src="{{ book.Book_cover_url }}" height="100"></td>
+            {% endif %}
+            <td>
+                {% if book.Book_rating %}
+                    <p>Rating: {{ book.Book_rating }}/10</p>
+                {% else %}
+                    <form action="/rate_book/{{ book.Book_id }}" method="POST">
+                        <label for="rating">Rate (1-10):</label>
+                        <input type="number" id="rating" name="rating" min="1" max="10" required>
+                        <button type="submit">Submit Rating</button>
+                    </form>
+                {% endif %}
+            </td>
+            <td>
+                <form action="/book/{{ book.Book_id }}/delete" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form action="/book_review" method="GET">
+        <button type="submit">Suggest a Book</button>
+    </form>
+
+</body>
 </html>

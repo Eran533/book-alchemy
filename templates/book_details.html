@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007BFF;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        img {
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Details</h1>
+        {% if book %}
+            <p><strong>Title:</strong> {{ book.Book_title }}</p>
+            <p><strong>Publication Year:</strong> {{ book.Book_publication_year }}</p>
+            {% if author %}
+                <p><strong>Author:</strong> {{ author.Author_name }}</p>
+            {% else %}
+                <p>Author not found.</p>
+            {% endif %}
+        {% if book.Book_cover_url == "default_cover_url.jpg" %}
+            <td><img src="{{ url_for('static', filename='default_cover_url.jpg') }}" height="100"></td>
+            {% else %}
+            <td><img src="{{ book.Book_cover_url }}" height="100"></td>
+            {% endif %}
+        {% if book.Book_rating %}
+                <p><strong>Rating:</strong> {{ book.Book_rating }}/10</p>
+            {% endif %}
+        {% else %}
+            <p>Book not found.</p>
+        {% endif %}
+        <p><a href="{{ url_for('home') }}">Back to Home</a></p>
+    </div>
+</body>
+</html>
