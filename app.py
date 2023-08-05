@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
 import os
 import requests
+from data_models import Book, Author, db
 
 def get_book_cover(isbn):
     url = "https://book-cover-api2.p.rapidapi.com/api/public/books/v1/cover/url"
@@ -45,34 +45,9 @@ def ask_review(data):
     return review_text
 
 app = Flask(__name__)
-
 db_path = os.path.join(os.path.dirname(__file__), "data", "library.sqlite")
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
-db = SQLAlchemy(app)
-
-class Author(db.Model):
-    Author_id = db.Column(db.Integer, primary_key=True)
-    Author_name = db.Column(db.String)
-    Author_birth_date = db.Column(db.String)
-    Author_date_of_death = db.Column(db.String)
-    books = db.relationship('Book', backref='author', lazy=True)
-
-    def __repr__(self):
-        return f"<Author(id={self.Author_id}, name='{self.Author_name}')>"
-
-
-class Book(db.Model):
-    Book_id = db.Column(db.Integer, primary_key=True)
-    Book_isbn = db.Column(db.Integer)
-    Book_title = db.Column(db.String)
-    Book_publication_year = db.Column(db.Integer)
-    Book_cover_url = db.Column(db.String)
-    Book_rating = db.Column(db.Integer)
-    Author_id = db.Column(db.Integer, db.ForeignKey('author.Author_id'), nullable=False)
-
-    def __repr__(self):
-        return f"<Book(id={self.Book_id}, title='{self.Book_title}', rating={self.Book_rating})>"
-
+db.init_app(app)
 
 @app.route('/add_author', methods=['GET', 'POST'])
 def add_author():
@@ -90,16 +65,18 @@ def add_author():
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
     message = ""
+    authors = Author.query.all()
+
     if request.method == 'POST':
         book_isbn = request.form['isbn']
         book_title = request.form['title']
         publication_year = request.form['publication_year']
+        author_id = int(request.form['author_id'])
         existing_book = Book.query.filter_by(Book_title=book_title).first()
         if existing_book:
-            message = "Book already exists error"
+            message = "Book already exists."
         else:
-            author_name = request.form['author_name']
-            existing_author = Author.query.filter_by(Author_name=author_name).first()
+            existing_author = Author.query.get(author_id)
             if not existing_author:
                 message = "Author not found. Please add the author first before adding the book."
             else:
@@ -110,14 +87,14 @@ def add_book():
                         Book_title=book_title,
                         Book_publication_year=publication_year,
                         Book_cover_url=book_cover_url,
-                        Author_id=existing_author.Author_id
+                        Author_id=author_id
                     )
                     db.session.add(new_book)
                     db.session.commit()
                     message = "Book added successfully."
                 else:
                     message = "Failed to fetch the book cover."
-    return render_template('add_book.html', message=message)
+    return render_template('add_book.html', message=message, authors=authors)
 
 @app.route('/')
 def home():

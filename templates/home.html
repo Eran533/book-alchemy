@@ -145,6 +145,9 @@
 <body>
     <h1>Library</h1>
     <h2>Books</h2>
+        <form action="/book_review" method="GET">
+        <button type="submit">Suggest a Book</button>
+    </form>
     <p>
         <a href="/add_author">Add Author</a> | <a href="/add_book">Add Book</a>
     </p>
@@ -201,9 +204,5 @@
         </tr>
         {% endfor %}
     </table>
-    <form action="/book_review" method="GET">
-        <button type="submit">Suggest a Book</button>
-    </form>
-
 </body>
 </html>
